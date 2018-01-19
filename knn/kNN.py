@@ -51,6 +51,11 @@ def file2matrix(filename):
     return mat, labels
 
 
+'''
+归一化
+'''
+
+
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
     maxVals = dataSet.max(0)
@@ -58,5 +63,59 @@ def autoNorm(dataSet):
     normDataSet = zeros(shape(dataSet))
     m = dataSet.shape[0]
     normDataSet = dataSet - tile(minVals, (m, 1))
-    normDataSet = normDataSet / tile(range, (m, 1))
+    normDataSet = normDataSet / tile(ranges, (m, 1))
     return normDataSet, ranges, minVals
+
+
+def datingClassTest():
+    hoRatio = 0.10  # 测试集占比
+    mat, labels = file2matrix('datingTestSet.txt')
+    normMat, ranges, minVals = autoNorm(mat)
+    m = normMat.shape[0]
+    numTestVecs = int(m * hoRatio)
+    errCount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify0(normMat[i, :], normMat[numTestVecs:m, :], labels[numTestVecs:m], 3)
+        print("the classifier says: %d, the real answer is: %d" % (classifierResult, labels[i]))
+        if classifierResult != labels[i]: errCount += 1.0
+    print("the total err rate is: %f" % (errCount / float(numTestVecs)))
+
+
+def img2Vector(filename):
+    returnVec = zeros((1, 1024))
+    fr = open(filename)
+    for i in range(32):
+        lineStr = fr.readline()
+        for j in range(32):
+            try:
+                returnVec[0, 32 * i + j] = int(lineStr[j])
+            except:
+                print(lineStr)
+    return returnVec
+
+
+from os import listdir
+
+
+def handwritingClassTest():
+    hwLabels = []
+    trainingFileList = listdir('trainingDigits')
+    m = len(trainingFileList)  # 文件数 = 训练集大小
+    trainingMat = zeros((m, 1024))
+    for i in range(m):
+        fileNameStr = trainingFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        hwLabels.append(classNumStr)
+
+        trainingMat[i, :] = img2Vector("trainingDigits/%s" % fileNameStr)
+    testFileList = listdir('testDigits')
+    errCount = 0.0
+    t = len(testFileList)
+    for i in range(t):
+        fileNameStr = testFileList[i]
+        label = int(fileNameStr.split('_')[0])
+        testVec = img2Vector("testDigits/%s" % fileNameStr)
+        result = classify0(testVec, trainingMat, hwLabels, 3)
+        if (result != label): errCount += 1.0
+    print("errCount = %d, errRate= %f" % (errCount, errCount / float(t)))

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # print(kNN.classify0([0.8, 0.9], group, labels, 3))
 
 
-group, labels = kNN.file2matrix('datingTestSet.txt')
+# group, labels = kNN.file2matrix('datingTestSet.txt')
 # print(group)
 # print(labels)
 #
@@ -21,4 +21,5 @@ group, labels = kNN.file2matrix('datingTestSet.txt')
 # plt.show()
 
 
-normMat, ranges, minVals = kNN.autoNorm(group)
+# kNN.datingClassTest()
+kNN.handwritingClassTest()
